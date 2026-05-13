@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Data Explorer — IBM HR Attrition{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Data Explorer</h1>
+  <p>Browse the full IBM HR dataset with ML risk scores — filter, sort, and search</p>
+</div>
+
+<div class="filter-bar">
+  <div class="fg">
+    <label>Department</label>
+    <select id="fDept" onchange="filterTable()">
+      <option value="">All</option>
+      <option>Sales</option>
+      <option>Research &amp; Development</option>
+      <option>Human Resources</option>
+    </select>
+  </div>
+  <div class="fg">
+    <label>Attrition</label>
+    <select id="fAttr" onchange="filterTable()">
+      <option value="">All</option><option>Yes</option><option>No</option>
+    </select>
+  </div>
+  <div class="fg">
+    <label>Risk Tier</label>
+    <select id="fRisk" onchange="filterTable()">
+      <option value="">All</option><option>High</option><option>Medium</option><option>Low</option>
+    </select>
+  </div>
+  <div class="fg">
+    <label>Overtime</label>
+    <select id="fOT" onchange="filterTable()">
+      <option value="">All</option><option>Yes</option><option>No</option>
+    </select>
+  </div>
+  <div class="fg">
+    <label>Search Job Role</label>
+    <input type="text" id="fSearch" placeholder="e.g. Sales..." oninput="filterTable()"/>
+  </div>
+  <div class="fg">
+    <label>&nbsp;</label>
+    <button class="btn btn-outline" onclick="resetFilters()">Reset</button>
+  </div>
+</div>
+
+<div class="table-meta">
+  <span id="rowCount" class="row-count">Loading...</span>
+  <span class="table-note">First 200 records · click column header to sort</span>
+</div>
+
+<div class="table-wrap">
+  <table class="data-table" id="empTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable('Age')">Age ↕</th>
+        <th onclick="sortTable('Department')">Department ↕</th>
+        <th onclick="sortTable('JobRole')">Job Role ↕</th>
+        <th onclick="sortTable('Gender')">Gender</th>
+        <th onclick="sortTable('MaritalStatus')">Marital</th>
+        <th onclick="sortTable('MonthlyIncome')">Income ↕</th>
+        <th onclick="sortTable('YearsAtCompany')">Tenure ↕</th>
+        <th onclick="sortTable('JobSatisfaction')">Job Sat.</th>
+        <th onclick="sortTable('WorkLifeBalance')">WLB</th>
+        <th onclick="sortTable('OverTime')">OT</th>
+        <th onclick="sortTable('Attrition')">Attrition</th>
+        <th onclick="sortTable('AttritionRisk_Score')">Risk % ↕</th>
+        <th onclick="sortTable('AttritionRisk_Tier')">Tier</th>
+      </tr>
+    </thead>
+    <tbody id="tBody">
+      <tr><td colspan="13" class="loading-row">Loading IBM HR data...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let allData=[], sortCol='', sortAsc=true;
+
+fetch('/api/employees').then(r=>r.json()).then(data=>{
+  allData=data; renderTable(allData);
+});
+
+function renderTable(data){
+  document.getElementById('rowCount').textContent=`${data.length} employees`;
+  const tbody=document.getElementById('tBody');
+  if(!data.length){
+    tbody.innerHTML='<tr><td colspan="13" class="loading-row">No records match your filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.map(r=>`
+    <tr>
+      <td>${r.Age}</td>
+      <td>${r.Department}</td>
+      <td>${r.JobRole}</td>
+      <td>${r.Gender}</td>
+      <td>${r.MaritalStatus}</td>
+      <td>$${Number(r.MonthlyIncome).toLocaleString()}</td>
+      <td>${r.YearsAtCompany} yr${r.YearsAtCompany!==1?'s':''}</td>
+      <td><span class="sat-badge s${r.JobSatisfaction}">${r.JobSatisfaction}/4</span></td>
+      <td><span class="sat-badge s${r.WorkLifeBalance}">${r.WorkLifeBalance}/4</span></td>
+      <td><span class="badge ${r.OverTime==='Yes'?'badge-orange':'badge-gray'}">${r.OverTime}</span></td>
+      <td><span class="badge ${r.Attrition==='Yes'?'badge-red':'badge-green'}">${r.Attrition}</span></td>
+      <td>${r.AttritionRisk_Score?(r.AttritionRisk_Score*100).toFixed(1)+'%':'—'}</td>
+      <td>${r.AttritionRisk_Tier?`<span class="badge badge-${r.AttritionRisk_Tier.toLowerCase()}">${r.AttritionRisk_Tier}</span>`:'—'}</td>
+    </tr>`).join('');
+}
+
+function filterTable(){
+  const dept=document.getElementById('fDept').value;
+  const attr=document.getElementById('fAttr').value;
+  const risk=document.getElementById('fRisk').value;
+  const ot  =document.getElementById('fOT').value;
+  const srch=document.getElementById('fSearch').value.toLowerCase();
+  renderTable(allData.filter(r=>
+    (!dept||r.Department===dept)&&
+    (!attr||r.Attrition===attr)&&
+    (!risk||r.AttritionRisk_Tier===risk)&&
+    (!ot  ||r.OverTime===ot)&&
+    (!srch||r.JobRole.toLowerCase().includes(srch)||r.Department.toLowerCase().includes(srch))
+  ));
+}
+
+function resetFilters(){
+  ['fDept','fAttr','fRisk','fOT'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fSearch').value='';
+  renderTable(allData);
+}
+
+function sortTable(col){
+  if(sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=true;}
+  const sorted=[...allData].sort((a,b)=>{
+    const va=a[col], vb=b[col];
+    if(va==null) return 1; if(vb==null) return -1;
+    if(typeof va==='number') return sortAsc?va-vb:vb-va;
+    return sortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+  });
+  renderTable(sorted);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}IBM HR Attrition Analytics{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-logo">📊</span>
+      <div class="nav-brand-text">
+        <span class="nav-title">HR Attrition Analytics</span>
+        <span class="nav-sub">IBM HR Dataset · 1470 Employees</span>
+      </div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="/"          class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
+      <li><a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="/insights"  class="{% if request.path == '/insights' %}active{% endif %}">Insights</a></li>
+      <li><a href="/predict"   class="{% if request.path == '/predict' %}active{% endif %}">Risk Predictor</a></li>
+      <li><a href="/explorer"  class="{% if request.path == '/explorer' %}active{% endif %}">Data Explorer</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-content">{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <p>IBM HR Analytics Employee Attrition &nbsp;·&nbsp; Python &nbsp;·&nbsp; SQL &nbsp;·&nbsp; Excel &nbsp;·&nbsp; Power BI</p>
+    <p class="footer-sub">Dataset: <a href="https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset" target="_blank">Kaggle — IBM HR Analytics</a></p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

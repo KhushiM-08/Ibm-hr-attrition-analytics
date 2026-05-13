@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Key Insights — IBM HR Attrition{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Key Insights</h1>
+  <p>Data-driven findings from the IBM HR Analytics dataset</p>
+</div>
+
+<div class="insights-grid">
+
+  <div class="insight-card red">
+    <div class="insight-icon">⏰</div>
+    <h3>Overtime is the #1 Attrition Driver</h3>
+    <p>Employees who work overtime have <strong>~3× higher attrition rate</strong> compared to those who don't. This is the strongest single predictor in both the Random Forest and SHAP analysis.</p>
+    <div class="insight-stat">~30% vs ~10%</div>
+    <div class="insight-stat-lbl">Attrition rate: Overtime vs No Overtime</div>
+  </div>
+
+  <div class="insight-card orange">
+    <div class="insight-icon">💰</div>
+    <h3>Low Salary = High Flight Risk</h3>
+    <p>Employees earning below <strong>$3,000/month</strong> show significantly elevated attrition. The median salary of employees who left is considerably lower than those who stayed.</p>
+    <div class="insight-stat">$4,787 vs $6,833</div>
+    <div class="insight-stat-lbl">Median income: Left vs Stayed</div>
+  </div>
+
+  <div class="insight-card blue">
+    <div class="insight-icon">💍</div>
+    <h3>Single Employees Leave More</h3>
+    <p>Single employees have the highest attrition rate among all marital groups. Married employees are the most stable, likely due to financial commitments and lifestyle stability.</p>
+    <div class="insight-stat">Single > Divorced > Married</div>
+    <div class="insight-stat-lbl">Attrition rate by marital status</div>
+  </div>
+
+  <div class="insight-card purple">
+    <div class="insight-icon">🏢</div>
+    <h3>Sales Has Highest Attrition</h3>
+    <p>The Sales department consistently shows the highest attrition rate, driven by high-pressure targets, frequent travel, and competitive job market for sales professionals.</p>
+    <div class="insight-stat">Sales > HR > R&D</div>
+    <div class="insight-stat-lbl">Attrition rate by department</div>
+  </div>
+
+  <div class="insight-card green">
+    <div class="insight-icon">📅</div>
+    <h3>Early Tenure = Highest Risk</h3>
+    <p>Employees with <strong>0–2 years at the company</strong> are most likely to leave. Attrition drops significantly after the 3-year mark, suggesting a critical retention window.</p>
+    <div class="insight-stat">0–2 years is critical</div>
+    <div class="insight-stat-lbl">Onboarding & early retention focus needed</div>
+  </div>
+
+  <div class="insight-card teal">
+    <div class="insight-icon">✈️</div>
+    <h3>Frequent Travel Increases Risk</h3>
+    <p>Employees who travel frequently for business show noticeably higher attrition than those who rarely travel or don't travel at all — highlighting work-life balance concerns.</p>
+    <div class="insight-stat">Frequently > Rarely > Non-Travel</div>
+    <div class="insight-stat-lbl">Attrition rate by travel frequency</div>
+  </div>
+
+</div>
+
+<section class="section">
+  <h2 class="section-title">Top Feature Importances (Random Forest)</h2>
+  <p class="section-sub">Features ranked by their contribution to the attrition prediction model</p>
+  <div class="fi-table-wrap">
+    <table class="fi-table">
+      <thead>
+        <tr><th>Rank</th><th>Feature</th><th>Importance Score</th><th>Importance Bar</th></tr>
+      </thead>
+      <tbody>
+        {% for f in metrics.top_features %}
+        <tr>
+          <td class="rank-cell">{{ loop.index }}</td>
+          <td class="feat-cell">{{ f.Feature }}</td>
+          <td class="score-cell">{{ "%.4f"|format(f.Importance) }}</td>
+          <td class="bar-cell">
+            <div class="fi-bar-wrap">
+              <div class="fi-bar" style="width:{{ (f.Importance * 1000)|round|int }}%"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Model Performance Summary</h2>
+  <div class="model-summary-grid">
+    {% for name, res in metrics.model_results.items() %}
+    <div class="model-card {% if name == metrics.best_model %}best{% endif %}">
+      {% if name == metrics.best_model %}<div class="best-badge">Best Model</div>{% endif %}
+      <h3>{{ name }}</h3>
+      <div class="metric-row"><span>ROC-AUC</span><span class="metric-val auc">{{ res.roc_auc }}</span></div>
+      <div class="metric-row"><span>Accuracy</span><span class="metric-val">{{ res.accuracy }}</span></div>
+      <div class="metric-row"><span>F1 Score</span><span class="metric-val">{{ res.f1 }}</span></div>
+      <div class="metric-row"><span>Precision</span><span class="metric-val">{{ res.precision }}</span></div>
+      <div class="metric-row"><span>Recall</span><span class="metric-val">{{ res.recall }}</span></div>
+      <div class="metric-row"><span>CV Mean</span><span class="metric-val">{{ res.cv_mean }}</span></div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">HR Recommendations</h2>
+  <div class="rec-grid">
+    <div class="rec-card">
+      <div class="rec-num">01</div>
+      <h4>Overtime Policy</h4>
+      <p>Limit consistent overtime to &lt;15% of workforce. Introduce comp-time policies. Overtime workers show 3× the attrition risk.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">02</div>
+      <h4>Salary Review</h4>
+      <p>Benchmark compensation especially for Job Level 1–2 roles. Income below $3k/month correlates strongly with attrition.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">03</div>
+      <h4>Early Onboarding</h4>
+      <p>Focus retention efforts in years 0–2. Assign mentors, structured 30/60/90 day plans, and early career pathing.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">04</div>
+      <h4>Sales Department</h4>
+      <p>Review target-setting, commission structures, and travel frequency for Sales. This department has the highest flight risk.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">05</div>
+      <h4>Satisfaction Surveys</h4>
+      <p>Employees with Job Satisfaction ≤ 2 are at elevated risk. Quarterly pulse surveys can catch dissatisfaction early.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">06</div>
+      <h4>Use the Risk Predictor</h4>
+      <p>Run the ML risk predictor monthly. Focus 1-on-1s with High Risk employees before they actively seek alternatives.</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

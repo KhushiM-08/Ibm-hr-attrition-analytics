@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% block title %}Risk Predictor — IBM HR Attrition{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Employee Attrition Risk Predictor</h1>
+  <p>Enter employee details to get a real-time ML-powered attrition risk score</p>
+</div>
+
+<div class="predict-layout">
+  <!-- Form -->
+  <div class="card predict-form-card">
+    <h2>Employee Profile</h2>
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" id="Age" value="32" min="18" max="60"/>
+      </div>
+      <div class="form-group">
+        <label>Gender</label>
+        <select id="Gender"><option>Male</option><option>Female</option></select>
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select id="Department">
+          <option>Sales</option>
+          <option>Research & Development</option>
+          <option>Human Resources</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Job Role</label>
+        <select id="JobRole">
+          <option>Sales Executive</option>
+          <option>Research Scientist</option>
+          <option>Laboratory Technician</option>
+          <option>Manufacturing Director</option>
+          <option>Healthcare Representative</option>
+          <option>Manager</option>
+          <option>Sales Representative</option>
+          <option>Research Director</option>
+          <option>Human Resources</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Monthly Income ($)</label>
+        <input type="number" id="MonthlyIncome" value="5000" min="1009" max="19999"/>
+      </div>
+      <div class="form-group">
+        <label>Job Level (1–5)</label>
+        <input type="number" id="JobLevel" value="2" min="1" max="5"/>
+      </div>
+      <div class="form-group">
+        <label>Marital Status</label>
+        <select id="MaritalStatus">
+          <option>Single</option><option>Married</option><option>Divorced</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Business Travel</label>
+        <select id="BusinessTravel">
+          <option value="Travel_Rarely">Rarely</option>
+          <option value="Travel_Frequently">Frequently</option>
+          <option value="Non-Travel">Non-Travel</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>OverTime</label>
+        <select id="OverTime"><option>Yes</option><option>No</option></select>
+      </div>
+      <div class="form-group">
+        <label>Years at Company</label>
+        <input type="number" id="YearsAtCompany" value="3" min="0" max="40"/>
+      </div>
+      <div class="form-group">
+        <label>Total Working Years</label>
+        <input type="number" id="TotalWorkingYears" value="8" min="0" max="40"/>
+      </div>
+      <div class="form-group">
+        <label>Distance From Home (km)</label>
+        <input type="number" id="DistanceFromHome" value="10" min="1" max="29"/>
+      </div>
+      <div class="form-group">
+        <label>Num Companies Worked</label>
+        <input type="number" id="NumCompaniesWorked" value="2" min="0" max="9"/>
+      </div>
+      <div class="form-group">
+        <label>Stock Option Level (0–3)</label>
+        <input type="number" id="StockOptionLevel" value="1" min="0" max="3"/>
+      </div>
+
+      <!-- Sliders -->
+      <div class="form-group full-span">
+        <label>Job Satisfaction — <span id="JobSatisfaction_val" class="slider-val">3</span>/4</label>
+        <input type="range" id="JobSatisfaction" min="1" max="4" value="3" class="slider"/>
+      </div>
+      <div class="form-group full-span">
+        <label>Work-Life Balance — <span id="WorkLifeBalance_val" class="slider-val">3</span>/4</label>
+        <input type="range" id="WorkLifeBalance" min="1" max="4" value="3" class="slider"/>
+      </div>
+      <div class="form-group full-span">
+        <label>Environment Satisfaction — <span id="EnvironmentSatisfaction_val" class="slider-val">3</span>/4</label>
+        <input type="range" id="EnvironmentSatisfaction" min="1" max="4" value="3" class="slider"/>
+      </div>
+      <div class="form-group full-span">
+        <label>Job Involvement — <span id="JobInvolvement_val" class="slider-val">3</span>/4</label>
+        <input type="range" id="JobInvolvement" min="1" max="4" value="3" class="slider"/>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="runPredict()">
+      🎯 Predict Attrition Risk
+    </button>
+  </div>
+
+  <!-- Result -->
+  <div class="card predict-result" id="resultCard" style="display:none">
+    <h2>Prediction Result</h2>
+
+    <div class="gauge-wrap">
+      <canvas id="gaugeCanvas" width="240" height="140"></canvas>
+      <div class="gauge-pct" id="gaugePct">--</div>
+    </div>
+
+    <div class="risk-badge-wrap">
+      <span class="risk-badge" id="riskBadge">--</span>
+    </div>
+    <p class="risk-msg" id="riskMsg"></p>
+
+    <div class="factors-wrap">
+      <div class="factors-title">Top Contributing Features</div>
+      <div id="factorsList"></div>
+    </div>
+
+    <div class="tier-guide">
+      <div class="tier-guide-title">Risk Tier Guide</div>
+      <div class="tier-row"><span class="tdot low"></span><strong>Low (&lt;30%)</strong> — Stable, monitor quarterly</div>
+      <div class="tier-row"><span class="tdot med"></span><strong>Medium (30–60%)</strong> — Check in, review workload</div>
+      <div class="tier-row"><span class="tdot high"></span><strong>High (&gt;60%)</strong> — Urgent retention action</div>
+    </div>
+  </div>
+</div>
+
+<!-- Scenario cards -->
+<section class="section">
+  <h2 class="section-title">Try a Scenario</h2>
+  <div class="scenario-grid">
+    <div class="scenario-card red" onclick="loadScenario('high')">
+      <div class="sc-icon">🚨</div>
+      <div class="sc-title">High Risk Profile</div>
+      <div class="sc-desc">Single, overtime, low salary, frequent travel, low satisfaction</div>
+    </div>
+    <div class="scenario-card green" onclick="loadScenario('low')">
+      <div class="sc-icon">✅</div>
+      <div class="sc-title">Low Risk Profile</div>
+      <div class="sc-desc">Married, no overtime, good salary, senior level, high satisfaction</div>
+    </div>
+    <div class="scenario-card orange" onclick="loadScenario('medium')">
+      <div class="sc-icon">⚠️</div>
+      <div class="sc-title">Medium Risk Profile</div>
+      <div class="sc-desc">Mid-level, occasional overtime, average satisfaction, some travel</div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Slider live values
+['JobSatisfaction','WorkLifeBalance','EnvironmentSatisfaction','JobInvolvement'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', e=>{
+    document.getElementById(id+'_val').textContent = e.target.value;
+  });
+});
+
+const SCENARIOS = {
+  high: {Age:25,Gender:'Male',Department:'Sales',JobRole:'Sales Representative',
+         MonthlyIncome:2500,JobLevel:1,MaritalStatus:'Single',
+         BusinessTravel:'Travel_Frequently',OverTime:'Yes',
+         YearsAtCompany:1,TotalWorkingYears:2,DistanceFromHome:25,
+         NumCompaniesWorked:4,StockOptionLevel:0,
+         JobSatisfaction:1,WorkLifeBalance:1,EnvironmentSatisfaction:1,JobInvolvement:1},
+  low:  {Age:42,Gender:'Female',Department:'Research & Development',JobRole:'Research Director',
+         MonthlyIncome:14000,JobLevel:4,MaritalStatus:'Married',
+         BusinessTravel:'Non-Travel',OverTime:'No',
+         YearsAtCompany:15,TotalWorkingYears:20,DistanceFromHome:5,
+         NumCompaniesWorked:1,StockOptionLevel:3,
+         JobSatisfaction:4,WorkLifeBalance:4,EnvironmentSatisfaction:4,JobInvolvement:4},
+  medium:{Age:33,Gender:'Male',Department:'Sales',JobRole:'Sales Executive',
+          MonthlyIncome:6000,JobLevel:2,MaritalStatus:'Divorced',
+          BusinessTravel:'Travel_Rarely',OverTime:'Yes',
+          YearsAtCompany:5,TotalWorkingYears:9,DistanceFromHome:14,
+          NumCompaniesWorked:3,StockOptionLevel:1,
+          JobSatisfaction:3,WorkLifeBalance:2,EnvironmentSatisfaction:3,JobInvolvement:3},
+};
+
+function loadScenario(key){
+  const s = SCENARIOS[key];
+  Object.keys(s).forEach(k=>{
+    const el = document.getElementById(k);
+    if(el){ el.value = s[k];
+      if(el.type==='range') document.getElementById(k+'_val').textContent=s[k];
+    }
+  });
+  runPredict();
+}
+
+function runPredict(){
+  const fields=['Age','Gender','Department','JobRole','MonthlyIncome','JobLevel',
+                'MaritalStatus','BusinessTravel','OverTime','YearsAtCompany',
+                'TotalWorkingYears','DistanceFromHome','NumCompaniesWorked',
+                'StockOptionLevel','JobSatisfaction','WorkLifeBalance',
+                'EnvironmentSatisfaction','JobInvolvement'];
+  const data={};
+  fields.forEach(f=>{
+    const el=document.getElementById(f);
+    const v=el.value;
+    data[f]=isNaN(v)||v===''?v:Number(v);
+  });
+  // defaults for non-form fields
+  Object.assign(data,{
+    Education:3, EducationField:'Life Sciences',
+    HourlyRate:65, DailyRate:800, MonthlyRate:14000,
+    PercentSalaryHike:14, PerformanceRating:3,
+    RelationshipSatisfaction:3,
+    YearsInCurrentRole:Math.min(data.YearsAtCompany,3),
+    YearsSinceLastPromotion:Math.min(data.YearsAtCompany,2),
+    YearsWithCurrManager:Math.min(data.YearsAtCompany,3),
+    TrainingTimesLastYear:3
+  });
+
+  fetch('/api/predict',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(data)
+  }).then(r=>r.json()).then(res=>{
+    if(res.error){alert('Error: '+res.error);return;}
+    showResult(res);
+  }).catch(e=>alert('Server error: '+e));
+}
+
+function showResult(res){
+  const card=document.getElementById('resultCard');
+  card.style.display='block';
+  document.getElementById('gaugePct').textContent=res.probability.toFixed(1)+'%';
+
+  const badge=document.getElementById('riskBadge');
+  badge.className='risk-badge '+res.tier.toLowerCase();
+  badge.textContent=res.tier+' Risk';
+
+  const msgs={
+    Low:'This employee shows low attrition risk. Continue regular engagement and growth opportunities.',
+    Medium:'Moderate risk detected. Recommend a 1-on-1 check-in and review of compensation or workload.',
+    High:'High attrition risk! Immediate retention action recommended — review salary, overtime, and career growth.'
+  };
+  document.getElementById('riskMsg').textContent=msgs[res.tier];
+
+  drawGauge(res.probability/100);
+
+  document.getElementById('factorsList').innerHTML=res.top_factors.map((f,i)=>`
+    <div class="factor-row">
+      <span class="factor-rank">${i+1}</span>
+      <span class="factor-name">${f.feature}</span>
+      <div class="factor-bar-bg"><div class="factor-bar" style="width:${Math.round(f.importance*1500)}%"></div></div>
+      <span class="factor-score">${(f.importance*100).toFixed(2)}%</span>
+    </div>`).join('');
+
+  card.scrollIntoView({behavior:'smooth'});
+}
+
+function drawGauge(ratio){
+  const c=document.getElementById('gaugeCanvas');
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  const cx=120,cy=120,r=95;
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
+  ctx.strokeStyle='#e8e8ea';ctx.lineWidth=20;ctx.stroke();
+  const color=ratio<.30?'#1D9E75':ratio<.60?'#EF9F27':'#E24B4A';
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+ratio*Math.PI);
+  ctx.strokeStyle=color;ctx.lineWidth=20;ctx.lineCap='round';ctx.stroke();
+}
+</script>
+{% endblock %}

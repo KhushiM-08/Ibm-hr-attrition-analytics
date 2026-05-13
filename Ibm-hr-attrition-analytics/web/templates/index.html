@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}IBM HR Attrition Analytics — Home{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">IBM HR Analytics Dataset</div>
+    <h1>Employee Attrition<br><span class="accent">Intelligence Platform</span></h1>
+    <p>Comprehensive analysis of the IBM HR Analytics dataset — uncovering the key drivers of employee attrition through machine learning, statistical analysis, and interactive visualizations.</p>
+    <div class="hero-cta">
+      <a href="/dashboard" class="btn btn-primary">📊 View Dashboard</a>
+      <a href="/predict"   class="btn btn-outline">🎯 Predict Risk</a>
+      <a href="/insights"  class="btn btn-outline">💡 Key Insights</a>
+    </div>
+    <div class="hero-dataset-info">
+      <span>📁 Source: IBM / Kaggle</span>
+      <span>🗂️ 1,470 employees</span>
+      <span>📋 35 features</span>
+      <span>🤖 3 ML models</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="kpi-mini-grid">
+      <div class="kpi-mini">
+        <div class="kpi-mini-val">{{ metrics.total_employees }}</div>
+        <div class="kpi-mini-lbl">Employees</div>
+      </div>
+      <div class="kpi-mini red">
+        <div class="kpi-mini-val">{{ metrics.attrition_rate }}%</div>
+        <div class="kpi-mini-lbl">Attrition Rate</div>
+      </div>
+      <div class="kpi-mini orange">
+        <div class="kpi-mini-val">{{ metrics.high_risk }}</div>
+        <div class="kpi-mini-lbl">High Risk</div>
+      </div>
+      <div class="kpi-mini purple">
+        <div class="kpi-mini-val">{{ "%.1f"|format(metrics.best_auc * 100) }}%</div>
+        <div class="kpi-mini-lbl">Best AUC</div>
+      </div>
+      <div class="kpi-mini green">
+        <div class="kpi-mini-val">15</div>
+        <div class="kpi-mini-lbl">Charts Generated</div>
+      </div>
+      <div class="kpi-mini blue">
+        <div class="kpi-mini-val">{{ metrics.best_model.split()[0] }}</div>
+        <div class="kpi-mini-lbl">Best Model</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick charts -->
+<section class="section">
+  <h2 class="section-title">Quick Overview</h2>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-title">Attrition Split</div>
+      <canvas id="attrDonut" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Risk Tier Distribution</div>
+      <canvas id="riskDonut" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Attrition by Department</div>
+      <canvas id="deptBar" height="200"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- Pipeline -->
+<section class="section">
+  <h2 class="section-title">Project Pipeline</h2>
+  <div class="pipeline-grid">
+    <div class="pipeline-step">
+      <div class="ps-icon">📥</div>
+      <div class="ps-title">IBM Dataset</div>
+      <div class="ps-desc">1470 employees, 35 features — fictional dataset created by IBM data scientists</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="ps-icon">🔧</div>
+      <div class="ps-title">Preprocessing</div>
+      <div class="ps-desc">Drop constants, label encode categoricals, 80/20 stratified split</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="ps-icon">📊</div>
+      <div class="ps-title">EDA</div>
+      <div class="ps-desc">10 matplotlib/seaborn charts covering all key attrition dimensions</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="ps-icon">🤖</div>
+      <div class="ps-title">ML Models</div>
+      <div class="ps-desc">Random Forest, Gradient Boosting, Logistic Regression with 5-fold CV</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="ps-icon">🔬</div>
+      <div class="ps-title">SHAP</div>
+      <div class="ps-desc">Explainability layer — understand why each prediction is made</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="ps-icon">📤</div>
+      <div class="ps-title">Export</div>
+      <div class="ps-desc">Excel report (5 sheets), SQL views, risk scores for Power BI</div>
+    </div>
+  </div>
+</section>
+
+<!-- Tech stack -->
+<section class="section">
+  <h2 class="section-title">Technology Stack</h2>
+  <div class="tech-row">
+    {% for icon, name, desc, cls in [
+      ('🐍','Python 3.11','pandas, numpy, scikit-learn, SHAP, matplotlib, seaborn','python'),
+      ('🗄️','MySQL 8.0','Schema design, stored procedures, window functions, views','sql'),
+      ('📊','Excel / openpyxl','5-sheet report, pivot-ready structure, Power BI source','excel'),
+      ('📉','Power BI','Connect to vw_attrition_dashboard view or Excel export','powerbi'),
+      ('🌐','Flask','REST API with 9 endpoints, Jinja2 templates','flask'),
+      ('📈','Chart.js','Interactive bar, donut, radar, line charts in browser','chartjs'),
+    ] %}
+    <div class="tech-card {{ cls }}">
+      <span class="tech-icon">{{ icon }}</span>
+      <strong>{{ name }}</strong>
+      <span>{{ desc }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const m = {{ metrics|tojson }};
+// Attrition donut
+new Chart(document.getElementById('attrDonut'),{
+  type:'doughnut',
+  data:{labels:['Stayed','Left'],
+        datasets:[{data:[m.total_employees-m.attrition_count, m.attrition_count],
+                   backgroundColor:['#1D9E75','#E24B4A'],borderWidth:2,borderColor:'#fff'}]},
+  options:{plugins:{legend:{position:'bottom'}},cutout:'62%'}
+});
+// Risk donut
+new Chart(document.getElementById('riskDonut'),{
+  type:'doughnut',
+  data:{labels:['Low','Medium','High'],
+        datasets:[{data:[m.low_risk,m.medium_risk,m.high_risk],
+                   backgroundColor:['#1D9E75','#EF9F27','#E24B4A'],borderWidth:2,borderColor:'#fff'}]},
+  options:{plugins:{legend:{position:'bottom'}},cutout:'62%'}
+});
+// Dept bar
+fetch('/api/dept-breakdown').then(r=>r.json()).then(data=>{
+  new Chart(document.getElementById('deptBar'),{
+    type:'bar',
+    data:{labels:data.map(d=>d.Department.split('&')[0].trim()+'...'),
+          datasets:[{label:'Attrition Rate (%)',data:data.map(d=>d.rate),
+                     backgroundColor:['#7F77DD','#E24B4A','#1D9E75'],borderRadius:5}]},
+    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:50}}}
+  });
+});
+</script>
+{% endblock %}

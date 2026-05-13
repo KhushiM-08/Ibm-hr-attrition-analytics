@@ -1,0 +1,190 @@
+{
+  "dataset": "IBM HR Analytics Employee Attrition",
+  "total_employees": 1470,
+  "attrition_count": 237,
+  "attrition_rate": 16.12,
+  "high_risk": 185,
+  "medium_risk": 278,
+  "low_risk": 1007,
+  "best_model": "Logistic Regression",
+  "best_auc": 0.8704,
+  "best_accuracy": 0.7721,
+  "best_f1": 0.5315,
+  "model_results": {
+    "Random Forest": {
+      "accuracy": 0.8401,
+      "roc_auc": 0.8621,
+      "f1": 0.4337,
+      "precision": 0.5,
+      "recall": 0.383,
+      "cv_mean": 0.8466,
+      "cv_std": 0.0213
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.8435,
+      "roc_auc": 0.8538,
+      "f1": 0.3611,
+      "precision": 0.52,
+      "recall": 0.2766,
+      "cv_mean": 0.8392,
+      "cv_std": 0.0159
+    },
+    "Logistic Regression": {
+      "accuracy": 0.7721,
+      "roc_auc": 0.8704,
+      "f1": 0.5315,
+      "precision": 0.3958,
+      "recall": 0.8085,
+      "cv_mean": 0.8046,
+      "cv_std": 0.019
+    }
+  },
+  "dept_breakdown": [
+    {
+      "Department": "Human Resources",
+      "Total": 63,
+      "Attrition_Yes": 9,
+      "Attrition_Rate": 14.29,
+      "Avg_Risk_Score": 0.2353,
+      "High_Risk": 5,
+      "Avg_Income": 10645.0,
+      "Avg_JobSat": 2.67
+    },
+    {
+      "Department": "Research & Development",
+      "Total": 961,
+      "Attrition_Yes": 169,
+      "Attrition_Rate": 17.59,
+      "Avg_Risk_Score": 0.258,
+      "High_Risk": 132,
+      "Avg_Income": 6471.0,
+      "Avg_JobSat": 2.93
+    },
+    {
+      "Department": "Sales",
+      "Total": 446,
+      "Attrition_Yes": 59,
+      "Attrition_Rate": 13.23,
+      "Avg_Risk_Score": 0.2236,
+      "High_Risk": 48,
+      "Avg_Income": 8004.0,
+      "Avg_JobSat": 2.87
+    }
+  ],
+  "role_breakdown": [
+    {
+      "JobRole": "Laboratory Technician",
+      "Total": 216,
+      "Attrition_Yes": 58,
+      "Attrition_Rate": 26.85,
+      "Avg_Income": 3272.0,
+      "High_Risk": 50
+    },
+    {
+      "JobRole": "Sales Representative",
+      "Total": 89,
+      "Attrition_Yes": 19,
+      "Attrition_Rate": 21.35,
+      "Avg_Income": 3375.0,
+      "High_Risk": 14
+    },
+    {
+      "JobRole": "Research Scientist",
+      "Total": 297,
+      "Attrition_Yes": 55,
+      "Attrition_Rate": 18.52,
+      "Avg_Income": 4490.0,
+      "High_Risk": 42
+    },
+    {
+      "JobRole": "Healthcare Representative",
+      "Total": 151,
+      "Attrition_Yes": 22,
+      "Attrition_Rate": 14.57,
+      "Avg_Income": 4927.0,
+      "High_Risk": 18
+    },
+    {
+      "JobRole": "Human Resources",
+      "Total": 29,
+      "Attrition_Yes": 4,
+      "Attrition_Rate": 13.79,
+      "Avg_Income": 3825.0,
+      "High_Risk": 3
+    },
+    {
+      "JobRole": "Manager",
+      "Total": 215,
+      "Attrition_Yes": 27,
+      "Attrition_Rate": 12.56,
+      "Avg_Income": 16273.0,
+      "High_Risk": 20
+    },
+    {
+      "JobRole": "Sales Executive",
+      "Total": 273,
+      "Attrition_Yes": 31,
+      "Attrition_Rate": 11.36,
+      "Avg_Income": 6892.0,
+      "High_Risk": 27
+    },
+    {
+      "JobRole": "Manufacturing Director",
+      "Total": 141,
+      "Attrition_Yes": 16,
+      "Attrition_Rate": 11.35,
+      "Avg_Income": 6913.0,
+      "High_Risk": 9
+    },
+    {
+      "JobRole": "Research Director",
+      "Total": 59,
+      "Attrition_Yes": 5,
+      "Attrition_Rate": 8.47,
+      "Avg_Income": 15398.0,
+      "High_Risk": 2
+    }
+  ],
+  "top_features": [
+    {
+      "Feature": "OverTime",
+      "Importance": 0.22173800079589168
+    },
+    {
+      "Feature": "MonthlyIncome",
+      "Importance": 0.09737701992771691
+    },
+    {
+      "Feature": "JobLevel",
+      "Importance": 0.05196360458899738
+    },
+    {
+      "Feature": "YearsAtCompany",
+      "Importance": 0.04542020439577081
+    },
+    {
+      "Feature": "MonthlyRate",
+      "Importance": 0.041511704954708586
+    },
+    {
+      "Feature": "DistanceFromHome",
+      "Importance": 0.041208697291233796
+    },
+    {
+      "Feature": "YearsWithCurrManager",
+      "Importance": 0.03815541253616746
+    },
+    {
+      "Feature": "HourlyRate",
+      "Importance": 0.0379063230273145
+    },
+    {
+      "Feature": "DailyRate",
+      "Importance": 0.03786556252402393
+    },
+    {
+      "Feature": "JobSatisfaction",
+      "Importance": 0.03735791570511256
+    }
+  ]
+}
