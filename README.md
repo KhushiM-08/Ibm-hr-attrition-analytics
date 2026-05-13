@@ -50,7 +50,7 @@ python web/app.py
 ---
 
 ## 📌 Dataset
-[IBM HR Analytics Employee Attrition](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset) — Kaggle · 1,470 employees · 35 features · 16.12% attrition rate
+[IBM HR Analytics Employee Attrition](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset) - Kaggle · 1,470 employees · 35 features · 16.12% attrition rate
 
 ---
 
