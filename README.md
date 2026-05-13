@@ -39,7 +39,7 @@ python web/app.py
 | `sql/` | Schema, 3 stored procedures, 12 analytical queries, Power BI view |
 | `reports/` | 15 auto-generated matplotlib/seaborn charts |
 | `data/` | IBM dataset, risk scores, 5-sheet Excel report |
-| `web/` | Flask app — 5 pages, 9 REST API endpoints |
+| `web/` | Flask app- 5 pages, 9 REST API endpoints |
 
 ---
 
