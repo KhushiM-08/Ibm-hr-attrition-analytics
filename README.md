@@ -27,7 +27,7 @@ python scripts/create_ibm_dataset.py
 python scripts/train_model.py
 python web/app.py
 ```
-Open → **http://localhost:5000**
+
 
 ---
 
